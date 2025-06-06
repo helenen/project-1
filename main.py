@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-
+import matplotlib.pyplot as plt
 
 #Read values
 #nfl_data = pd.read_csv("NFL Play by Play 2009-2017 (v4).csv",low_memory=False)
@@ -43,7 +43,7 @@ wt_sales_date['Days_of_week'] = wt_sales_date['Date'].dt.dayofweek
 wt_sales_date['Days_of_week_names'] = wt_sales_date['Date'].dt.day_name()
 
 #Create column 'year's week'
-wt_sales_date['Year_of_week'] = wt_sales_date['Date'].dt.isocalendar().week
+#wt_sales_date['Year_of_week'] = wt_sales_date['Date'].dt.isocalendar().week
 
 #Create column 'Quarter'
 wt_sales_date['Quarter'] = wt_sales_date['Date'].dt.quarter
@@ -65,11 +65,38 @@ def get_saison(date):
 
 wt_sales_date['Saison'] = wt_sales_date['Date'].apply(get_saison)
 
-#Average of sales by month
-monthly_avg = wt_sales_date.groupby('Month')["Weekly_Sales"].mean()
-monthly_avg_df = monthly_avg.reset_index()
-monthly_avg_df.columns = ['Month', 'Average_Sales']
+#Sales by month
+monthly_sales = wt_sales_date.groupby('Month')["Weekly_Sales"].sum()
 
-print(monthly_avg_df)
+monthly_sales_df = monthly_sales.reset_index()
+monthly_sales_df.columns = ['Month', 'Sales by month']
+
+#graphique
+
+month_names = {
+    1: 'Jan', 2: 'Fev', 3: 'Mar', 4: 'Avr', 5: 'Mai', 6: 'Juin',
+    7: 'Juil', 8: 'Aout', 9: 'Sep', 10: 'Oct', 11: 'Nov', 12: 'Dec'
+}
+
+monthly_sales_df['Month'] = monthly_sales_df['Month'].map(month_names)
+
+plt.close('all')
+plt.figure(figsize=(10, 6))
+plt.bar(monthly_sales_df['Month'], monthly_sales_df['Sales by month'])
+plt.xlabel('Month')
+y_ticks = range(0, int(monthly_sales_df['Sales by month'].max()) + 100000000, 100000000)
+y_labels = [f'{y/1000000:.0f}M' for y in y_ticks]
+plt.yticks(y_ticks, y_labels)
+
+plt.title("Sales by month")
+
+plt.show()
+
+
+#Sales by days's week
+#sales_by_days_week = wt_sales_date.groupby('Days_of_week')["Weekly_Sales"].sum()
+#sales_by_days_week_df = sales_by_days_week.reset_index()
+#sales_by_days_week_df.columns = ['Days_of_week', 'Sales by days of week']
+#print(sales_by_days_week_df)
 
 
